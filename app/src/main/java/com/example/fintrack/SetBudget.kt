@@ -13,16 +13,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fintrack.ui.theme.accentColor
+import com.example.fintrack.ui.theme.grayColor
+import com.example.fintrack.ui.theme.textColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetBudget(navController: NavController) {
     var budget by remember { mutableStateOf("") }
-
-    // Define color palette
-    val accentColor = Color(0xFF8E5FF1)
-    val textColor = Color(0xFF6A2C91)
-    val grayColor = Color(0xFFC0C0C0)
 
     Column(
         modifier = Modifier
@@ -44,7 +42,7 @@ fun SetBudget(navController: NavController) {
         )
         Text(
             text = "Help you to stay on Track.",
-            color = grayColor
+            color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -64,7 +62,13 @@ fun SetBudget(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate("MainScreen") },
+            onClick = {
+                // Handle save action, e.g., navigate to another screen or save the expense
+                navController.navigate("MainScreen")
+            },
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(top = 16.dp), // Optional padding
             colors = ButtonDefaults.buttonColors(containerColor = accentColor)
         ) {
             Text(text = "Save", color = Color.White)

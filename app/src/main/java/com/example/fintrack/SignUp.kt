@@ -13,15 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fintrack.ui.theme.accentColor
+import com.example.fintrack.ui.theme.grayColor
+import com.example.fintrack.ui.theme.textColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUp(navController: NavController) {
-
-    // Define color palette
-    val accentColor = Color(0xFF8E5FF1)
-    val textColor = Color(0xFF6A2C91)
-    val grayColor = Color(0xFFC0C0C0)
 
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -38,26 +36,26 @@ fun SignUp(navController: NavController) {
         Image(
             painter = painterResource(id = R.drawable.fintracklogo),
             contentDescription = "FinTrack Logo",
-            modifier = Modifier.size(300.dp)
+            modifier = Modifier.size(250.dp)
         )
 
         Text(
             text = "Sign Up",
-            fontSize = 35.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = textColor,
             modifier = Modifier.padding(vertical = 8.dp)
         )
         Text(
             text = "Create an Account",
-            color = grayColor,
+            color = Color.Black,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text(text = "Name", color = grayColor) },
+            label = { Text(text = "Name", color = grayColor)},
             modifier = Modifier.fillMaxWidth(0.8f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = accentColor,
@@ -104,7 +102,7 @@ fun SignUp(navController: NavController) {
                 cursorColor = accentColor
             )
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Button(
             onClick = { navController.navigate("Login") },
@@ -113,6 +111,7 @@ fun SignUp(navController: NavController) {
             Text(text = "SIGN UP", color = Color.White)
         }
 
+        Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Already have an account?", color = grayColor)
 
         TextButton(onClick = { navController.navigate("Login") }) {
