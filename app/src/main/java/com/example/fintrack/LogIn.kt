@@ -13,15 +13,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fintrack.ui.theme.AuthViewModel
+import com.example.fintrack.ui.theme.accentColor
+import com.example.fintrack.ui.theme.grayColor
+import com.example.fintrack.ui.theme.textColor
 
 @OptIn(ExperimentalMaterial3Api::class) // Opting into the experimental API
 @Composable
-fun LogIn(navController: NavController) {
-
-    // Define color palette
-    val accentColor = Color(0xFF8E5FF1)
-    val textColor = Color(0xFF6A2C91)
-    val grayColor = Color(0xFFC0C0C0)
+fun LogIn(navController: NavController, authViewModel: AuthViewModel) {
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

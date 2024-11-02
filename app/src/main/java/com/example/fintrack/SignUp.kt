@@ -13,13 +13,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fintrack.ui.theme.AuthViewModel
 import com.example.fintrack.ui.theme.accentColor
 import com.example.fintrack.ui.theme.grayColor
 import com.example.fintrack.ui.theme.textColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUp(navController: NavController) {
+fun SignUp(navController: NavController, authViewModel: AuthViewModel) {
 
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }

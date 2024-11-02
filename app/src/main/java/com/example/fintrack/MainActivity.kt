@@ -14,24 +14,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.fintrack.ui.theme.AuthViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val authViewModel = AuthViewModel()
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "Login", builder = {
                composable("Signup",){
-                    SignUp(navController)
+                    SignUp(navController, authViewModel)
                 }
 
-                composable("Login",){
-                    LogIn(navController)
+                composable("Login"){
+                    LogIn(navController, authViewModel)
                 }
 
                 composable("SetBudget",){
-                    SetBudget(navController)
+                    SetBudget(navController, authViewModel)
                 }
 
                 composable("MainScreen",){
