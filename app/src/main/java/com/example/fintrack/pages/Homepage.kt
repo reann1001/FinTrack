@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,7 +37,7 @@ import com.example.fintrack.ui.theme.textColor
 
 @Composable
 fun Homepage(navController: NavController) {
-    val budgetAmount = "₱20,000.00"
+    val budget = "₱20,000.00"
     val currentBudget = "₱15,000.00"
     val totalExpense = "₱20,000.00"
 
@@ -65,7 +66,8 @@ fun Homepage(navController: NavController) {
             Text(
                 text = "Welcome to FinTrack!",
                 fontSize = 23.sp,
-                color = textColor
+                color = textColor,
+                fontFamily = FontFamily.Serif
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -78,7 +80,7 @@ fun Homepage(navController: NavController) {
             Spacer(modifier = Modifier.height(30.dp))
 
             // Budget Box
-            BudgetBox(budgetAmount, currentBudget, totalExpense, navController)
+            BudgetBox(budget, currentBudget, totalExpense, navController)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -98,7 +100,7 @@ fun Homepage(navController: NavController) {
 }
 
 @Composable
-fun BudgetBox(budgetAmount: String, currentBudget: String, totalExpense: String, navController: NavController) {
+fun BudgetBox(budget: String, currentBudget: String, totalExpense: String, navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,7 +124,7 @@ fun BudgetBox(budgetAmount: String, currentBudget: String, totalExpense: String,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = budgetAmount,
+                    text = budget,
                     fontSize = 35.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black

@@ -55,14 +55,14 @@ fun MainScreen(navController: NavController) {
                             selectedIndex = index
                         },
                         icon = {
-                                Icon(
-                                    imageVector = navItem.icon,
-                                    contentDescription = "Icon",
-                                    modifier = Modifier.size(
-                                        if (navItem.label == "History" || navItem.label == "Scanner")
-                                            20.dp else 18.dp
-                                    )
+                            Icon(
+                                imageVector = navItem.icon,
+                                contentDescription = "Icon",
+                                modifier = Modifier.size(
+                                    if (navItem.label == "History" || navItem.label == "Scanner")
+                                        20.dp else 18.dp
                                 )
+                            )
                         },
                         label = {
                             Text(text = navItem.label)

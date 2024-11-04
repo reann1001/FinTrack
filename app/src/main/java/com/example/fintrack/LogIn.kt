@@ -1,5 +1,4 @@
 package com.example.fintrack
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,14 +12,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.fintrack.ui.theme.AuthViewModel
 import com.example.fintrack.ui.theme.accentColor
 import com.example.fintrack.ui.theme.grayColor
 import com.example.fintrack.ui.theme.textColor
 
+
 @OptIn(ExperimentalMaterial3Api::class) // Opting into the experimental API
 @Composable
-fun LogIn(navController: NavController, authViewModel: AuthViewModel) {
+fun LogIn(navController: NavController) {
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -54,7 +53,7 @@ fun LogIn(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(0.8f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = accentColor,
-                unfocusedBorderColor = grayColor,
+                unfocusedBorderColor = accentColor,
                 cursorColor = accentColor
             )
         )
@@ -67,7 +66,7 @@ fun LogIn(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(0.8f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = accentColor,
-                unfocusedBorderColor = grayColor,
+                unfocusedBorderColor = accentColor,
                 cursorColor = accentColor
             )
         )

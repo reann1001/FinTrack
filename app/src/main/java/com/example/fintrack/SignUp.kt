@@ -9,18 +9,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.fintrack.ui.theme.AuthViewModel
 import com.example.fintrack.ui.theme.accentColor
 import com.example.fintrack.ui.theme.grayColor
 import com.example.fintrack.ui.theme.textColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUp(navController: NavController, authViewModel: AuthViewModel) {
+fun SignUp(navController: NavController) {
 
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -60,7 +60,7 @@ fun SignUp(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(0.8f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = accentColor,
-                unfocusedBorderColor = grayColor,
+                unfocusedBorderColor = accentColor,
                 cursorColor = accentColor
             )
         )
@@ -73,7 +73,7 @@ fun SignUp(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(0.8f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = accentColor,
-                unfocusedBorderColor = grayColor,
+                unfocusedBorderColor = accentColor,
                 cursorColor = accentColor
             )
         )
@@ -86,7 +86,7 @@ fun SignUp(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(0.8f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = accentColor,
-                unfocusedBorderColor = grayColor,
+                unfocusedBorderColor = accentColor,
                 cursorColor = accentColor
             )
         )
@@ -99,7 +99,7 @@ fun SignUp(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(0.8f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = accentColor,
-                unfocusedBorderColor = grayColor,
+                unfocusedBorderColor = accentColor,
                 cursorColor = accentColor
             )
         )

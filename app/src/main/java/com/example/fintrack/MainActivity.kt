@@ -4,40 +4,42 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.fintrack.ui.theme.AuthViewModel
+import com.example.fintrack.Budget.SetBudget
+import com.example.fintrack.pages.EditProfile
+import com.example.fintrack.pages.Profile
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val authViewModel = AuthViewModel()
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "Login", builder = {
                composable("Signup",){
-                    SignUp(navController, authViewModel)
+                    SignUp(navController)
                 }
 
                 composable("Login"){
-                    LogIn(navController, authViewModel)
+                    LogIn(navController)
                 }
 
                 composable("SetBudget",){
-                    SetBudget(navController, authViewModel)
+                    SetBudget(navController)
                 }
 
                 composable("MainScreen",){
                     MainScreen(navController)
+                }
+
+                composable("EditProfile",){
+                    EditProfile(navController)
+                }
+
+                composable("Profile",){
+                    Profile(navController)
                 }
 /*
                 composable("Notification",){
