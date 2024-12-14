@@ -1,5 +1,6 @@
 package com.example.fintrack
 
+import android.provider.CalendarContract.Colors
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,11 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fintrack.pages.History
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.ui.graphics.Color
+import com.example.fintrack.models.BudgetModel
 import com.example.fintrack.models.ExpenseModel
 import com.example.fintrack.models.UserModel
 import com.example.fintrack.pages.AddExpense
+import com.example.fintrack.pages.EditProfile
 import com.example.fintrack.pages.TrackExpense
+import com.example.fintrack.ui.theme.accentColor
 import com.example.fintrack.ui.theme.textColor
 
 @Composable
@@ -34,9 +39,9 @@ fun MainScreen(navController: NavController, userModel: UserModel) {
 
     val navItemList = listOf(
         NavItem("Home", Icons.Default.Home),
-        NavItem("History", icon = ImageVector.vectorResource(id = R.drawable.ic_custom_history)),
         NavItem("Scanner", icon = ImageVector.vectorResource(id = R.drawable.ic_custom_scanner)),
-        NavItem("Settings", Icons.Default.Settings)
+        NavItem("History", icon = ImageVector.vectorResource(id = R.drawable.ic_custom_history)),
+        NavItem("Profile", Icons.Default.Settings)
     )
 
     var selectedIndex by remember { mutableIntStateOf(0) }
@@ -53,6 +58,15 @@ fun MainScreen(navController: NavController, userModel: UserModel) {
                         onClick = {
                             selectedIndex = index
                         },
+                        colors = NavigationBarItemColors(
+                            selectedIconColor = Color(0xFFB89FFB),
+                            selectedTextColor = Color(0xFFB89FFB),
+                            selectedIndicatorColor = Color(0xFF9127C3),
+                            unselectedIconColor = Color(0xFF757575),
+                            unselectedTextColor = Color(0xFF757575),
+                            disabledIconColor = Color(0xFFE1BEE7),
+                            disabledTextColor = Color(0xFFE1BEE7)
+                        ),
                         icon = {
                             Icon(
                                 imageVector = navItem.icon,
@@ -61,7 +75,6 @@ fun MainScreen(navController: NavController, userModel: UserModel) {
                                     if (navItem.label == "History" || navItem.label == "Scanner")
                                         20.dp else 18.dp
                                 ),
-                                tint = if (selectedIndex == index) Color(0xFF9768FA) else Color.Black
                             )
                         },
                         label = {
@@ -73,24 +86,33 @@ fun MainScreen(navController: NavController, userModel: UserModel) {
             }
         }
     ) { innerPadding ->
-        ContentScreen(modifier = Modifier.padding(innerPadding), navController = navController, selectedIndex = selectedIndex, userModel = userModel, expenseModel = ExpenseModel())
+        ContentScreen(modifier = Modifier.padding(innerPadding),
+            navController = navController,
+            selectedIndex = selectedIndex,
+            userModel = userModel,
+            expenseModel = ExpenseModel()
+        )
     }
 }
 
 @Composable
-fun ContentScreen(modifier: Modifier = Modifier, navController: NavController, selectedIndex: Int, userModel: UserModel, expenseModel: ExpenseModel) { // Accept navController
+fun ContentScreen(modifier: Modifier = Modifier,
+                  navController: NavController,
+                  selectedIndex: Int,
+                  userModel: UserModel,
+                  expenseModel: ExpenseModel) {
     when (selectedIndex) {
         0 -> {
             val trackExpense = remember { TrackExpense(navController) }
-            trackExpense.TrackExpenseView()
+            trackExpense.TrackExpenseView(navController)
         }
         1 -> {
-            val history = remember { History(navController) }
-            history.HistoryView(expenseModel)
+            val addExpense = remember { AddExpense(navController) }
+            addExpense.AddExpenseView()
         }
         2 -> {
-            val addExpense = remember { AddExpense(navController) }
-            addExpense.AddExpenseScreen() // Call the barcode scanning function when "Scanner" is selected
+            val history = remember { History(navController) }
+            history.HistoryView(expenseModel)
         }
         3 -> {
             val editProfile = remember { EditProfile(navController, userModel) }

@@ -11,40 +11,34 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import com.example.fintrack.models.BudgetModel
 import com.example.fintrack.models.ExpenseModel
-import com.example.fintrack.ui.theme.textColor
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 class AddExpense(private val navController: NavController) {
 
+    private val budgetModel = BudgetModel()
     private val expenseModel = ExpenseModel()
 
     @Composable
-    fun AddExpenseScreen() {
-        // Calling ScanBarcode function to display the camera view
-        ScanBarcode(expenseModel, navController)
+    fun AddExpenseView() {
+        ScanBarcode(expenseModel, budgetModel)
     }
 
     @Composable
-    fun ScanBarcode(expenseModel: ExpenseModel, navController: NavController) {
+    fun ScanBarcode(expenseModel: ExpenseModel, budgetModel: BudgetModel) {
         val context = LocalContext.current
         val lifecycleOwner = LocalLifecycleOwner.current
         val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
@@ -63,7 +57,6 @@ class AddExpense(private val navController: NavController) {
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            // Camera Preview
             AndroidView(
                 factory = { ctx ->
                     val previewView = PreviewView(ctx).apply {
@@ -83,7 +76,7 @@ class AddExpense(private val navController: NavController) {
                         }
 
                         // Set up the barcode scanner
-                        val barcodeAnalyzer = BarcodeAnalyzer(expenseModel, context)
+                        val barcodeAnalyzer = BarcodeAnalyzer(expenseModel, budgetModel, context)
 
                         val imageAnalysis = ImageAnalysis.Builder()
                             .setTargetResolution(Size(640, 480))
@@ -109,33 +102,18 @@ class AddExpense(private val navController: NavController) {
                 },
                 modifier = Modifier.fillMaxSize()
             )
-
-            // Overlay Text and Background
-            Column(
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text(
-                    text = "Scan Barcode",
-                    fontFamily = FontFamily.Serif,
-                    fontSize = 24.sp,
-                    color = textColor,
-                    modifier = Modifier.padding(top = 50.dp)
-                )
-            }
         }
     }
 }
 
 class BarcodeAnalyzer(
     private val expenseModel: ExpenseModel,
+    private val budgetModel: BudgetModel,
     private val context: android.content.Context
 ) : ImageAnalysis.Analyzer {
 
     private val scanner: BarcodeScanner = com.google.mlkit.vision.barcode.BarcodeScanning.getClient()
+    private val processedBarcodes = mutableSetOf<String>()
 
     @androidx.annotation.OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
@@ -162,31 +140,42 @@ class BarcodeAnalyzer(
         }
     }
 
-    private val processedBarcodes = mutableSetOf<String>()
     private fun handleProductBarcode(productBarcode: String) {
+        Log.d("BarcodeAnalyzer", "Processing barcode: $productBarcode")
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                if (processedBarcodes.contains(productBarcode)) {
-                    return@launch
+                val currentBudget = expenseModel.budget.value?.currentBudget ?: 0.0
+
+                val message = when {
+                    currentBudget <= 0 -> {
+                        "Cannot add product. Budget is zero or less."
+                    }
+                    processedBarcodes.contains(productBarcode) -> {
+                        Log.d("BarcodeAnalyzer", "Barcode already processed")
+                        return@launch
+                    }
+                    else -> {
+                        processedBarcodes.add(productBarcode)
+                        val product = expenseModel.getProductByBarcode(productBarcode)
+
+                        when {
+                            product == null -> "Product not found."
+                            currentBudget < product.price -> "Insufficient budget."
+                            else -> {
+                                budgetModel.addExpense(product.price)
+                                "${product.name}' added successfully."
+                            }
+                        }
+                    }
                 }
 
-                processedBarcodes.add(productBarcode)
-
-                val product = expenseModel.getProductByBarcode(productBarcode)
-
-                val message = if (product != null) {
-                    "${product.name}' added successfully"
-                } else {
-                    "Product not found"
-                }
-
+                Log.d("BarcodeAnalyzer", "Displaying message: $message")
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 
             } catch (e: Exception) {
-                Log.e("BarcodeAnalyzer", "Error handling product: ${e.message}", e)
+                Log.e("BarcodeAnalyzer", "Error handling product barcode $productBarcode: ${e.message}", e)
                 Toast.makeText(context, "Error fetching product", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
 }

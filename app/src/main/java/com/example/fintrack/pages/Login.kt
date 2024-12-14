@@ -1,5 +1,6 @@
-package com.example.fintrack
+package com.example.fintrack.pages
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -16,20 +17,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fintrack.R
 import com.example.fintrack.models.AuthState
 import com.example.fintrack.models.UserModel
 import com.example.fintrack.ui.theme.accentColor
 import com.example.fintrack.ui.theme.grayColor
 import com.example.fintrack.ui.theme.textColor
 
-class Signup(private val navController: NavController, private val userModel: UserModel) {
+class Login(private val navController: NavController, private val userModel: UserModel) {
 
     @Composable
-    fun SignupView() {
+    fun LoginView() {
         val context = LocalContext.current
-        val authState by userModel.authState.observeAsState()
+        val authState by userModel.authState.observeAsState(AuthState.Unauthenticated)
 
-        // Handle authentication state
+        // Handle the side effects based on authState
         AuthState(authState, navController, context)
 
         Column(
@@ -42,30 +44,24 @@ class Signup(private val navController: NavController, private val userModel: Us
             Image(
                 painter = painterResource(id = R.drawable.fintracklogo),
                 contentDescription = "FinTrack Logo",
-                modifier = Modifier.size(250.dp)
+                modifier = Modifier.size(300.dp)
             )
 
             Text(
-                text = "SIGN UP",
+                text = "LOGIN",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            Text(
-                text = "Create an Account",
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            SignupInput(userModel, navController, context)
+            LoginInput(context)
         }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun SignupInput(authViewModel: UserModel, navController: NavController, context: android.content.Context) {
+    private fun LoginInput(context: Context) {
         var email by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
 
@@ -98,47 +94,45 @@ class Signup(private val navController: NavController, private val userModel: Us
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { validateSignUpInput(email, password, context, authViewModel) },
+            onClick = { validateLoginInput(email, password, context) }, // Call validateLoginInput here
             colors = ButtonDefaults.buttonColors(containerColor = accentColor)
         ) {
-            Text(text = "SIGN UP", color = Color.White)
+            Text(text = "LOGIN", color = Color.White)
         }
 
         Spacer(modifier = Modifier.height(10.dp))
-
-        Text(text = "Already have an account?", color = grayColor)
-
-        TextButton(onClick = { navController.navigate("Login") }) {
-            Text(text = "Login", color = accentColor)
+        Text(text = "Don't have an account?", color = grayColor)
+        TextButton(onClick = { navController.navigate("Signup") }) {
+            Text(text = "Signup", color = accentColor)
         }
     }
 
-    private fun validateSignUpInput(email: String, password: String, context: android.content.Context, authViewModel: UserModel) {
-        when {
-            email.isEmpty() -> showError(context, "Email cannot be empty")
-            password.isEmpty() -> showError(context, "Password cannot be empty")
-            else -> authViewModel.signup(email, password)
+    private fun validateLoginInput(email: String, password: String, context: Context) {
+        if (email.isNotBlank() && password.isNotBlank()) {
+            userModel.login(email, password)
+        } else {
+            showError(context, "Email and password cannot be empty.")
         }
     }
 
-    private fun showError(context: android.content.Context, message: String) {
+    private fun showError(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
-}
 
-@Composable
-fun AuthState(authState: AuthState?, navController: NavController, context: android.content.Context) {
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Authenticated -> {
-                navController.navigate("Login") {
-                    popUpTo("Signup") { inclusive = true }
+    @Composable
+    fun AuthState(authState: AuthState?, navController: NavController, context: Context) {
+        LaunchedEffect(authState) {
+            when (authState) {
+                is AuthState.Authenticated -> {
+                    navController.navigate("SetBudget") {
+                        popUpTo("Login") { inclusive = true }
+                    }
                 }
+                is AuthState.Error -> {
+                    Toast.makeText(context, authState.message, Toast.LENGTH_SHORT).show()
+                }
+                else -> Unit
             }
-            is AuthState.Error -> {
-                Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
-            }
-            else -> Unit // No action
         }
     }
 }

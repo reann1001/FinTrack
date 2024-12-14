@@ -1,9 +1,13 @@
-package com.example.fintrack
+package com.example.fintrack.pages
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -11,12 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fintrack.R
 import com.example.fintrack.models.AuthState
 import com.example.fintrack.models.UserModel
 import com.example.fintrack.ui.theme.accentColor
@@ -25,33 +30,34 @@ import com.example.fintrack.ui.theme.textColor
 
 class EditProfile(private val navController: NavController, private val userModel: UserModel) {
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun EditProfileView() {
-        // State for user input
-        var email by remember { mutableStateOf("reyann.golosino@bisu.edu.ph") }
-        var password by remember { mutableStateOf("***********") }
+        val authState by userModel.authState.observeAsState()
 
-        val authState = userModel.authState.observeAsState()
-
-        LaunchedEffect(authState.value) {
-            when (authState.value) {
-                is AuthState.Unauthenticated -> navController.navigate("Login")
-                else -> Unit
+        // Redirect to login if unauthenticated
+        LaunchedEffect(authState) {
+            if (authState is AuthState.Unauthenticated) {
+                navController.navigate("Login") {
+                    popUpTo("Login") { inclusive = true }
+                }
             }
         }
 
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        // User data and context
+        val context = LocalContext.current
+        val email by remember { mutableStateOf(userModel.getCurrentUserEmail() ?: "Not Available") }
+        var currentPassword by remember { mutableStateOf("") }
+        var newPassword by remember { mutableStateOf("") }
+        var confirmPassword by remember { mutableStateOf("") }
+
+        Box(modifier = Modifier.fillMaxSize()) {
             // Background Image
             Image(
-                painter = painterResource(id = R.drawable.background),
+                painter = painterResource(id = R.drawable.finalbg),
                 contentDescription = "Background",
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Centered Column for the form content
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -59,107 +65,140 @@ class EditProfile(private val navController: NavController, private val userMode
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
             ) {
-                // Edit Profile Title at the Top
+                // Profile Title
                 Text(
-                    text = "Settings",
+                    text = "Profile",
                     fontFamily = FontFamily.Serif,
-                    fontSize = 24.sp,
-                    color = textColor,
+                    fontSize = 28.sp,
+                    color = Color.White,
                     modifier = Modifier.padding(top = 50.dp)
                 )
 
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(60.dp))
 
-                // Box for Input Fields
+                // Profile Picture
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFEDE7F6))
-                        .padding(20.dp)
+                        .size(150.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF9127C3))
+                        .border(1.dp, color = textColor, CircleShape)
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        // Call separate functions for form fields and actions
-                        editEmail(email, onEmailChange = { email = it })
-                        editPassword(password, onPasswordChange = { password = it })
-                        SaveButton { navController.navigate("MainScreen") }
-                        LogoutButton { userModel.signout() }
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(80.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Display Email
+                Text(
+                    text = email,
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 20.sp,
+                    color = textColor
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Password Fields and Buttons
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Editable Password Fields
+                    PasswordInputField("Current Password", currentPassword) { currentPassword = it }
+                    PasswordInputField("New Password", newPassword) { newPassword = it }
+                    PasswordInputField("Confirm Password", confirmPassword) { confirmPassword = it }
+
+                    // Save Button
+                    SaveButton {
+                        when {
+                            currentPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty() -> {
+                                Toast.makeText(context, "All fields are required", Toast.LENGTH_SHORT).show()
+                            }
+                            newPassword != confirmPassword -> {
+                                Toast.makeText(context, "New passwords do not match", Toast.LENGTH_SHORT).show()
+                            }
+                            else -> {
+                                userModel.reauthenticateAndChangePassword(
+                                    currentPassword, newPassword, context
+                                ) { success ->
+                                    if (success) {
+                                        Toast.makeText(
+                                            context,
+                                            "Password updated successfully",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Password update failed",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Logout Button
+                    LogoutButton {
+                        userModel.signout()
+                        navController.navigate("Login") {
+                            popUpTo("Login") { inclusive = true }
+                        }
                     }
                 }
             }
         }
     }
 
-    // Email input field function
+    // Password Input Field
     @Composable
-    fun editEmail(email: String, onEmailChange: (String) -> Unit) {
-        Text(text = "Email", color = textColor)
+    fun PasswordInputField(label: String, value: String, onValueChange: (String) -> Unit) {
         OutlinedTextField(
-            value = email,
-            onValueChange = onEmailChange, // Update email as user types
-            label = { Text(text = "Edit Email", color = grayColor) },
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(text = label) },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = accentColor,
-                unfocusedBorderColor = accentColor,
-                cursorColor = accentColor,
+                focusedBorderColor = textColor,
+                unfocusedBorderColor = textColor,
+                cursorColor = textColor,
                 focusedLabelColor = grayColor,
                 unfocusedLabelColor = grayColor
             ),
-            textStyle = TextStyle(color = Color.Black),
-            modifier = Modifier.fillMaxWidth()
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .padding(vertical = 2.dp)
         )
     }
 
-    // Password input field function
-    @Composable
-    fun editPassword(password: String, onPasswordChange: (String) -> Unit) {
-        Text(text = "Password", color = textColor)
-        OutlinedTextField(
-            value = password,
-            onValueChange = onPasswordChange, // Update password as user types
-            label = { Text(text = "Edit Password", color = grayColor) },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = accentColor,
-                unfocusedBorderColor = accentColor,
-                cursorColor = accentColor,
-                focusedLabelColor = grayColor,
-                unfocusedLabelColor = grayColor
-            ),
-            textStyle = TextStyle(color = Color.Black),
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-
-    // Save button function
+    // Save Button
     @Composable
     fun SaveButton(onSaveClick: () -> Unit) {
-        Spacer(modifier = Modifier.height(10.dp))
         Button(
             onClick = onSaveClick,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
+                .fillMaxWidth(0.9f)
+                .padding(vertical = 2.dp),
             colors = ButtonDefaults.buttonColors(containerColor = accentColor)
         ) {
             Text(text = "Save", color = Color.White)
         }
     }
 
-    // Logout button function
+    // Logout Button
     @Composable
     fun LogoutButton(onLogoutClick: () -> Unit) {
-        Spacer(modifier = Modifier.height(4.dp))
         TextButton(
-            onClick = {
-                onLogoutClick() // Call the signout function
-                navController.navigate("Login") {
-                    popUpTo("Login") { inclusive = true }
-                    launchSingleTop = true
-                }
-            },
+            onClick = onLogoutClick,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Logout", color = Color.Red)

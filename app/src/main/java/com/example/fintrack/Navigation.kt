@@ -4,8 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.fintrack.Budget.SetBudget
+import com.example.fintrack.models.BudgetModel
+import com.example.fintrack.pages.SetBudget
 import com.example.fintrack.models.UserModel
+import com.example.fintrack.pages.Login
+import com.example.fintrack.pages.Signup
 
 @Composable
 fun Navigation() {
@@ -24,7 +27,7 @@ fun Navigation() {
         }
 
         composable("SetBudget") {
-            val setBudget = SetBudget(navController, userModel)
+            val setBudget = SetBudget(navController)
             setBudget.SetBudgetView()
         }
 
